@@ -1,13 +1,21 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const location = useLocation();
+  
   const menuItems = [
-    { path: '/attendees', label: 'Analytics' },
-    { path: '/sidebar-events', label: 'Events' },
-    { path: '/emails', label: 'Emails' },
-    { path: '/settings', label: 'Settings' },
-    { path: '/sidebar-sponsors', label: 'Sponsors' },
-  ]
+    { path: '/dashboard/overview', label: 'Analytics' },
+    { path: '/dashboard/sidebar-events', label: 'Events' },
+    { path: '/dashboard/emails', label: 'Emails' },
+    { path: '/dashboard/settings', label: 'Settings' },
+    { path: '/dashboard/sidebar-sponsors', label: 'Sponsors' },
+  ];
+
+  // Check if current path is any dashboard tab route
+  const isDashboardRoute = location.pathname.startsWith('/dashboard/') && 
+    ['/dashboard/overview', '/dashboard/members', '/dashboard/events', 
+     '/dashboard/attendees', '/dashboard/tickets', '/dashboard/sponsors', 
+     '/dashboard/website'].includes(location.pathname);
 
   return (
     <div style={{
@@ -15,7 +23,9 @@ const Sidebar = () => {
       background: 'white',
       borderRight: '1px solid #ddd',
       padding: '20px',
-      paddingTop: '30px'
+      paddingTop: '30px',
+      height: '100%',
+      overflowY: 'auto'
     }}>
       <div style={{
         fontWeight: 'bold',
@@ -31,17 +41,22 @@ const Sidebar = () => {
         padding: '0',
         margin: '0'
       }}>
-        {menuItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            style={({ isActive }) => ({
-              textDecoration: 'none',
-              color: 'inherit',
-              display: 'block'
-            })}
-          >
-            {({ isActive }) => (
+        {menuItems.map((item, index) => {
+          // Special handling for Analytics - show active for all dashboard routes
+          const isActive = item.label === 'Analytics' 
+            ? isDashboardRoute 
+            : location.pathname === item.path;
+          
+          return (
+            <NavLink
+              key={index}
+              to={item.path}
+              style={({ isActive: navLinkActive }) => ({
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block'
+              })}
+            >
               <li
                 style={{
                   padding: '15px 0',
@@ -69,12 +84,12 @@ const Sidebar = () => {
                   </span>
                 )}
               </li>
-            )}
-          </NavLink>
-        ))}
+            </NavLink>
+          );
+        })}
       </ul>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

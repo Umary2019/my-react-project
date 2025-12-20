@@ -1,15 +1,15 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
 
 const DashboardTabs = () => {
   const tabs = [
-    { path: '/overview', label: 'Overview' },
-    { path: '/members', label: 'Members' },
-    { path: '/events', label: 'Events' },
-    { path: '/attendees', label: 'Attendees' },
-    { path: '/tickets', label: 'Tickets' },
-    { path: '/sponsors', label: 'Sponsors' },
-    { path: '/website', label: 'Website' },
-  ]
+    { path: '/dashboard/overview', label: 'Overview' },
+    { path: '/dashboard/members', label: 'Members' },
+    { path: '/dashboard/events', label: 'Events' },
+    { path: '/dashboard/attendees', label: 'Attendees' },
+    { path: '/dashboard/tickets', label: 'Tickets' },
+    { path: '/dashboard/sponsors', label: 'Sponsors' },
+    { path: '/dashboard/website', label: 'Website' },
+  ];
 
   return (
     <div style={{
@@ -36,7 +36,7 @@ const DashboardTabs = () => {
         </NavLink>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default DashboardTabs
+export default DashboardTabs;
