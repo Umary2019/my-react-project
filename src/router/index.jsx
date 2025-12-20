@@ -22,7 +22,7 @@ const AppRouter = () => {
     <Routes>
       <Route path="/" element={<DashboardLayout />}>
         {/* Default route - show Attendees page */}
-        <Route index element={<Navigate to="/attendees" replace />} />
+        <Route index element={<Navigate to="/overview" replace />} />
         
         {/* Dashboard routes */}
         <Route path="overview" element={<Overview />} />
