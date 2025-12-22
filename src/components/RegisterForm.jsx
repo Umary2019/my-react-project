@@ -91,7 +91,7 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
       <div className="register-modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="register-card">
           <div className="register-header">
-            <h2 className="register-title">Join EventFlow</h2>
+            <h2 className="register-title">Join GDG Event</h2>
             <p className="register-subtitle">Create your account to get started</p>
             <button className="register-close-btn" onClick={onClose}>×</button>
           </div>

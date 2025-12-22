@@ -21,17 +21,17 @@ const LandingPage = () => {
   const eventDetails = [
     {
       icon: 'far fa-calendar-alt',
-      text: 'Oct 12-14, 2025',
+      text: 'Today, 2025',
       subtext: 'Date'
     },
     {
       icon: 'fas fa-map-marker-alt',
-      text: 'San Francisco & Online',
+      text: 'Gombe State University',
       subtext: 'Location'
     },
     {
       icon: 'fas fa-users',
-      text: '10k+ Attendees',
+      text: '5k+ Attendees',
       subtext: 'Participants'
     }
   ];
@@ -87,7 +87,7 @@ const LandingPage = () => {
       {/* Header & Navigation */}
       <header>
         <div className="container header-container">
-          <a href="#" className="logo">EventFlow</a>
+          <a href="#" className="logo">GDG GSU</a>
           
           <nav>
             <ul>
@@ -125,13 +125,13 @@ const LandingPage = () => {
       <section className="hero">
         <div className="container">
           <div className="badge">
-            <i className="fas fa-bolt"></i> TECH SUMMIT 2025 - EARLY BIRD LIVE
+            <i className="fas fa-bolt"></i> Landing Page 2025
           </div>
           
-          <h1>Design the Future of Tech</h1>
+          <h1>GDG Academy Gombe</h1>
           
           <p>
-            Join 10,000+ developers, founders, and investors for three days of radical innovation. 
+            Join 5,000+ developers, founders, and investors for three days of radical innovation. 
             Discover the next generation of AI, Web3, and Cloud computing.
           </p>
           
@@ -149,7 +149,7 @@ const LandingPage = () => {
         </div>
       </section>
       
-      {/* Sections for anchor links */}
+      {/* Sections for anchor links
       <section id="events" style={{ padding: '50px 0', minHeight: '100px' }}>
         <div className="container">
           <h2>Events Section</h2>
@@ -183,7 +183,7 @@ const LandingPage = () => {
           <h2>Tickets Section</h2>
           <p>This is the tickets section content.</p>
         </div>
-      </section>
+      </section> */}
 
       {/* Login Form Modal */}
       {showLogin && (
