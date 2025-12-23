@@ -206,3 +206,24 @@
     font-size: 15px;
   }
 }
+
+/* Add disabled state styles */
+.login-submit-btn:disabled,
+.register-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.switch-to-register-btn:disabled,
+.switch-to-login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-close-btn:disabled,
+.register-close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

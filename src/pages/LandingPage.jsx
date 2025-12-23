@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
 import './LandingPage.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard/overview');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Handle event listeners for switching between modals
+  useEffect(() => {
+    const handleSwitchToRegister = () => {
+      setShowLogin(false);
+      setShowRegister(true);
+    };
+
+    const handleSwitchToLogin = () => {
+      setShowRegister(false);
+      setShowLogin(true);
+    };
+
+    window.addEventListener('switchToRegister', handleSwitchToRegister);
+    window.addEventListener('switchToLogin', handleSwitchToLogin);
+
+    return () => {
+      window.removeEventListener('switchToRegister', handleSwitchToRegister);
+      window.removeEventListener('switchToLogin', handleSwitchToLogin);
+    };
+  }, []);
+
   const navItems = [
     { name: 'Home', path: '/dashboard/overview' },
     { name: 'Events', path: '#events' },
@@ -38,13 +68,11 @@ const LandingPage = () => {
 
   const handleLogin = (e) => {
     if (e) e.preventDefault();
-    console.log('Opening login modal');
     setShowLogin(true);
   };
 
   const handleRegister = (e) => {
     if (e) e.preventDefault();
-    console.log('Opening register modal');
     setShowRegister(true);
   };
 
@@ -56,21 +84,16 @@ const LandingPage = () => {
     setShowRegister(false);
   };
 
-  const switchToRegister = () => {
-    setShowLogin(false);
-    setShowRegister(true);
-  };
-
-  const switchToLogin = () => {
-    setShowRegister(false);
-    setShowLogin(true);
-  };
-
   const handleNavClick = (e, path) => {
     e.preventDefault();
     
     if (path.startsWith('/')) {
-      navigate(path);
+      // If trying to access dashboard without login, show login modal
+      if (!isAuthenticated) {
+        setShowLogin(true);
+      } else {
+        navigate(path);
+      }
     } else if (path.startsWith('#')) {
       const targetElement = document.querySelector(path);
       if (targetElement) {
@@ -82,12 +105,17 @@ const LandingPage = () => {
     }
   };
 
+  // Don't show landing page if authenticated
+  if (isAuthenticated) {
+    return null; // Will redirect via useEffect
+  }
+
   return (
     <div className="landing-page">
       {/* Header & Navigation */}
       <header>
         <div className="container header-container">
-          <a href="#" className="logo">GDG GSU</a>
+          <a href="#" className="logo">GDG Gombe</a>
           
           <nav>
             <ul>
@@ -149,56 +177,14 @@ const LandingPage = () => {
         </div>
       </section>
       
-      {/* Sections for anchor links
-      <section id="events" style={{ padding: '50px 0', minHeight: '100px' }}>
-        <div className="container">
-          <h2>Events Section</h2>
-          <p>This is the events section content.</p>
-        </div>
-      </section>
-      
-      <section id="speakers" style={{ padding: '50px 0', minHeight: '100px' }}>
-        <div className="container">
-          <h2>Speakers Section</h2>
-          <p>This is the speakers section content.</p>
-        </div>
-      </section>
-      
-      <section id="sponsors" style={{ padding: '50px 0', minHeight: '100px' }}>
-        <div className="container">
-          <h2>Sponsors Section</h2>
-          <p>This is the sponsors section content.</p>
-        </div>
-      </section>
-      
-      <section id="partners" style={{ padding: '50px 0', minHeight: '100px' }}>
-        <div className="container">
-          <h2>Partners Section</h2>
-          <p>This is the partners section content.</p>
-        </div>
-      </section>
-      
-      <section id="tickets" style={{ padding: '50px 0', minHeight: '100px' }}>
-        <div className="container">
-          <h2>Tickets Section</h2>
-          <p>This is the tickets section content.</p>
-        </div>
-      </section> */}
-
       {/* Login Form Modal */}
       {showLogin && (
-        <LoginForm 
-          onClose={handleCloseLogin} 
-          onSwitchToRegister={switchToRegister}
-        />
+        <LoginForm onClose={handleCloseLogin} />
       )}
 
       {/* Register Form Modal */}
       {showRegister && (
-        <RegisterForm 
-          onClose={handleCloseRegister} 
-          onSwitchToLogin={switchToLogin}
-        />
+        <RegisterForm onClose={handleCloseRegister} />
       )}
     </div>
   );

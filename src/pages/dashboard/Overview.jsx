@@ -131,56 +131,11 @@ const Overview = () => {
           <div style={{
             fontSize: '14.5px',
             color: '#202124',
-            marginBottom: '8px',
-            lineHeight: '1.4'
-          }}>
-            Activate Windows
-          </div>
-          
-          <div style={{
-            fontSize: '14.5px',
-            color: '#202124',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            marginBottom: '15px',
-            lineHeight: '1.4'
-          }}>
-            Go to Settings <span style={{ fontSize: '13px' }}>✅</span> activate Windows.
-          </div>
-          
-          <div style={{
-            fontSize: '14.5px',
-            color: '#202124',
             lineHeight: '1.4'
           }}>
             Collaborated events <span style={{ color: '#d93025', fontWeight: '500' }}>▼ -3...</span>
           </div>
         </div>
-      </div>
-
-      {/* Windows Activation Notice */}
-      <div style={{
-        position: 'fixed',
-        bottom: '0',
-        left: '0',
-        right: '0',
-        background: '#f1f3f4',
-        padding: '6px 20px',
-        fontSize: '11.5px',
-        color: '#5f6368',
-        borderTop: '1px solid #dadce0',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        height: '30px'
-      }}>
-        <span style={{ fontWeight: '500' }}>Activate Windows</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <span>Go to Settings</span>
-          <span style={{ fontSize: '10px' }}>✅</span>
-          <span>activate Windows.</span>
-        </span>
       </div>
     </div>
   )

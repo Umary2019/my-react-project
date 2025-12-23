@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import './RegisterForm.css';
 
-export default function RegisterForm({ onClose, onSwitchToLogin }) {
+export default function RegisterForm({ onClose }) {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -12,6 +14,10 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,12 +33,14 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
     
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Full name is required';
+    } else if (formData.fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters';
     }
     
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email address';
     }
     
     if (!formData.password) {
@@ -58,32 +66,73 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const showErrorAlert = (message) => {
+    alert(`❌ ${message}`);
+  };
+
+  const showSuccessAlert = (message) => {
+    alert(`✅ ${message}`);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
+      // Show field validation errors as alert
+      const errorMessages = Object.values(formErrors).join('\n');
+      if (errorMessages) {
+        showErrorAlert(errorMessages);
+      }
+      
+      // Also set errors for field highlighting
       setErrors(formErrors);
       return;
     }
-    
-    // Simulate registration success
-    alert(`Registration successful! Welcome to EventFlow, ${formData.fullName}!`);
-    
-    // Reset form and close modal
-    setFormData({
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      phone: "",
-      role: ""
-    });
-    setErrors({});
-    
-    if (onClose) {
-      onClose();
+
+    setLoading(true);
+
+    try {
+      // Register user
+      const result = register({
+        fullName: formData.fullName.trim(),
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role
+      });
+      
+      if (result.success) {
+        showSuccessAlert(`Registration successful! Welcome to EventFlow, ${formData.fullName}!`);
+        
+        // Reset form
+        setFormData({
+          fullName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          phone: "",
+          role: ""
+        });
+        setErrors({});
+        
+        // Close modal and navigate to dashboard
+        if (onClose) onClose();
+        navigate('/dashboard/overview');
+      } else {
+        showErrorAlert(result.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      showErrorAlert("An unexpected error occurred. Please try again.");
+      console.error("Registration error:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSwitchToLogin = () => {
+    if (onClose) onClose();
+    window.dispatchEvent(new CustomEvent('switchToLogin'));
   };
 
   return (
@@ -91,9 +140,15 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
       <div className="register-modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="register-card">
           <div className="register-header">
-            <h2 className="register-title">Join GDG Event</h2>
+            <h2 className="register-title">Join EventFlow</h2>
             <p className="register-subtitle">Create your account to get started</p>
-            <button className="register-close-btn" onClick={onClose}>×</button>
+            <button 
+              className="register-close-btn" 
+              onClick={onClose}
+              disabled={loading}
+            >
+              ×
+            </button>
           </div>
           
           <form onSubmit={handleSubmit} noValidate>
@@ -103,6 +158,7 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 placeholder="Full Name" 
                 value={formData.fullName} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.fullName ? 'error' : ''}
               />
               {errors.fullName && <span className="error-message">{errors.fullName}</span>}
@@ -115,6 +171,7 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 placeholder="Email Address" 
                 value={formData.email} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.email ? 'error' : ''}
               />
               {errors.email && <span className="error-message">{errors.email}</span>}
@@ -127,6 +184,7 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 placeholder="Password" 
                 value={formData.password} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.password ? 'error' : ''}
               />
               {errors.password && <span className="error-message">{errors.password}</span>}
@@ -139,6 +197,7 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 placeholder="Confirm Password" 
                 value={formData.confirmPassword} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.confirmPassword ? 'error' : ''}
               />
               {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
@@ -150,19 +209,19 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 placeholder="Phone Number" 
                 value={formData.phone} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.phone ? 'error' : ''}
               />
               {errors.phone && <span className="error-message">{errors.phone}</span>}
             </div>
             
-            {/* Role Selection Field */}
             <div className="form-group">
               <select 
                 name="role" 
                 value={formData.role} 
                 onChange={handleChange}
+                disabled={loading}
                 className={errors.role ? 'error' : ''}
-                required
               >
                 <option value="">Select Your Role</option>
                 <option value="developer">Developer</option>
@@ -175,8 +234,12 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
               {errors.role && <span className="error-message">{errors.role}</span>}
             </div>
 
-            <button type="submit" className="register-submit-btn">
-              Create Account
+            <button 
+              type="submit" 
+              className="register-submit-btn"
+              disabled={loading}
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
             
             <div className="register-switch">
@@ -184,7 +247,8 @@ export default function RegisterForm({ onClose, onSwitchToLogin }) {
                 <button 
                   type="button" 
                   className="switch-to-login-btn"
-                  onClick={onSwitchToLogin}
+                  onClick={handleSwitchToLogin}
+                  disabled={loading}
                 >
                   Login here
                 </button>

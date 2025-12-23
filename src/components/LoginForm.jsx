@@ -1,19 +1,25 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import './LoginForm.css';
 
-export default function LoginForm({ onClose, onSwitchToRegister }) {
+export default function LoginForm({ onClose }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
+    // Clear errors when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -22,43 +28,74 @@ export default function LoginForm({ onClose, onSwitchToRegister }) {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.email) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email address';
     }
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
     
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const showErrorAlert = (message) => {
+    alert(`❌ ${message}`);
+  };
+
+  const showSuccessAlert = (message) => {
+    alert(`✅ ${message}`);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
+      // Show field validation errors as alert
+      const errorMessages = Object.values(formErrors).join('\n');
+      if (errorMessages) {
+        showErrorAlert(errorMessages);
+      }
+      
+      // Also set errors for field highlighting
       setErrors(formErrors);
       return;
     }
-    
-    // Simulate login success
-    alert(`Login successful! Welcome back!`);
-    
-    // Reset form and close modal
-    setFormData({
-      email: "",
-      password: "",
-    });
-    setErrors({});
-    
-    if (onClose) {
-      onClose();
+
+    setLoading(true);
+
+    try {
+      // Attempt login
+      const result = await login(formData.email, formData.password);
+      
+      if (result.success) {
+        showSuccessAlert(`Welcome back, ${result.user.fullName || result.user.email}!`);
+        
+        // Reset form
+        setFormData({ email: "", password: "" });
+        setErrors({});
+        
+        // Close modal and navigate to dashboard
+        if (onClose) onClose();
+        navigate('/dashboard/overview');
+      } else {
+        // Show error as alert popup
+        showErrorAlert(result.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
+      showErrorAlert("An unexpected error occurred. Please try again.");
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSwitchToRegister = () => {
+    if (onClose) onClose();
+    window.dispatchEvent(new CustomEvent('switchToRegister'));
   };
 
   return (
@@ -72,6 +109,7 @@ export default function LoginForm({ onClose, onSwitchToRegister }) {
               className="login-close-btn" 
               onClick={onClose}
               aria-label="Close"
+              disabled={loading}
             >
               ×
             </button>
@@ -84,7 +122,8 @@ export default function LoginForm({ onClose, onSwitchToRegister }) {
                 name="email" 
                 placeholder="Email Address" 
                 value={formData.email} 
-                onChange={handleChange} 
+                onChange={handleChange}
+                disabled={loading}
                 className={errors.email ? 'error' : ''}
               />
               {errors.email && <span className="error-message">{errors.email}</span>}
@@ -96,14 +135,19 @@ export default function LoginForm({ onClose, onSwitchToRegister }) {
                 name="password" 
                 placeholder="Password" 
                 value={formData.password} 
-                onChange={handleChange} 
+                onChange={handleChange}
+                disabled={loading}
                 className={errors.password ? 'error' : ''}
               />
               {errors.password && <span className="error-message">{errors.password}</span>}
             </div>
 
-            <button type="submit" className="login-submit-btn">
-              Sign In
+            <button 
+              type="submit" 
+              className="login-submit-btn"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Sign In'}
             </button>
             
             <div className="login-switch">
@@ -111,7 +155,8 @@ export default function LoginForm({ onClose, onSwitchToRegister }) {
                 <button 
                   type="button" 
                   className="switch-to-register-btn"
-                  onClick={onSwitchToRegister}
+                  onClick={handleSwitchToRegister}
+                  disabled={loading}
                 >
                   Create Account
                 </button>
